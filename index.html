@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brann AI - Kucing Gaul</title>
+    <title>Brann AI 3D Voice - Kucing Gaul</title>
     <style>
-        /* --- CSS STYLING & EXPERIMENT --- */
+        /* --- STYLING UTAMA (GLASSMORPHISM) --- */
         :root {
             --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
-            --panel-bg: rgba(255, 255, 255, 0.7);
+            --panel-bg: rgba(255, 255, 255, 0.45);
             --panel-border: rgba(255, 255, 255, 0.6);
             --text-color: #1e293b;
             --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
 
-        /* Mode Jahat: Tema Gelap Cyberpunk / Neon Red */
+        /* Mode Jahat: Tema Gelap Cyberpunk */
         .evil-mode {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-            --panel-bg: rgba(15, 23, 42, 0.6);
-            --panel-border: rgba(239, 68, 68, 0.4);
+            --panel-bg: rgba(15, 23, 42, 0.55);
+            --panel-border: rgba(239, 68, 68, 0.3);
             --text-color: #f8fafc;
             --shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.25);
         }
@@ -37,34 +37,34 @@
             justify-content: center;
             align-items: center;
             transition: background 0.5s ease;
-            padding: 20px;
+            padding: 15px;
         }
 
-        /* Glassmorphism Container */
+        /* Container Chat */
         .chat-container {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--panel-border);
             box-shadow: var(--shadow);
             border-radius: 24px;
             width: 100%;
-            max-width: 800px;
-            height: 85vh;
+            max-width: 900px;
+            height: 90vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: all 0.5s ease;
-            position: relative;
         }
 
-        /* Header & Toggle Buttons */
+        /* Header Pilihan Mode */
         .chat-header {
-            padding: 20px;
+            padding: 15px 20px;
             display: flex;
             gap: 12px;
             border-bottom: 1px solid var(--panel-border);
             z-index: 10;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .btn-mode {
@@ -79,79 +79,106 @@
         .btn-good {
             background-color: #22c55e;
             color: white;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
         }
 
         .btn-evil {
             background-color: #ef4444;
             color: white;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
-        .evil-mode .btn-good { opacity: 0.6; box-shadow: none; }
-        .evil-mode .btn-evil { opacity: 1; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+        .evil-mode .btn-good { opacity: 0.5; box-shadow: none; }
+        .evil-mode .btn-evil { opacity: 1; box-shadow: 0 0 15px rgba(239, 68, 68, 0.7); }
 
-        /* Area Utama Chat & Avatar Kucing */
-        .chat-body {
+        /* Pembagian Area: Kiri (3D Model), Kanan (Chat) */
+        .main-content {
             flex: 1;
             display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+
+        /* Area 3D Kucing */
+        .view-3d-container {
+            flex: 1.1;
+            position: relative;
+            border-right: 1px solid var(--panel-border);
+            background: rgba(0, 0, 0, 0.02);
+            display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Embed Spline 3D Viewer */
+        .spline-viewer-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .status-tag {
+            position: absolute;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Area Chat Percakapan */
+        .chat-view {
+            flex: 1.3;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .evil-mode .chat-view {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .messages-box {
+            flex: 1;
             padding: 20px;
             overflow-y: auto;
-            position: relative;
-        }
-
-        .avatar-display {
-            text-align: center;
-            margin-bottom: 20px;
-            min-height: 180px;
-        }
-
-        .cat-avatar {
-            font-size: 80px;
-            display: inline-block;
-            transition: transform 0.3s ease;
-            animation: bounce 2s infinite ease-in-out;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.05); }
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         /* Bubble Chat */
-        .messages-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
         .message {
-            max-width: 75%;
-            padding: 14px 18px;
-            border-radius: 18px;
-            font-size: 15px;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14.5px;
             line-height: 1.5;
-            animation: fadeIn 0.3s ease-in;
+            animation: slideIn 0.25s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .brann-msg {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: #1e293b;
             align-self: flex-start;
             border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
         .evil-mode .brann-msg {
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.95);
             color: #f8fafc;
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.15);
         }
 
         .user-msg {
@@ -159,176 +186,210 @@
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
-            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
         }
 
-        /* Input Area */
+        .evil-mode .user-msg {
+            background: #ef4444;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Bagian Input */
         .chat-footer {
-            padding: 20px;
+            padding: 15px 20px;
             border-top: 1px solid var(--panel-border);
             display: flex;
-            gap: 12px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .chat-input {
             flex: 1;
-            padding: 14px 20px;
-            border-radius: 14px;
+            padding: 12px 18px;
+            border-radius: 12px;
             border: 1px solid var(--panel-border);
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             color: #1e293b;
-            font-size: 15px;
+            font-size: 14.5px;
             outline: none;
         }
 
         .evil-mode .chat-input {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             color: white;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.25);
         }
 
         .btn-send {
-            padding: 0 24px;
+            padding: 0 22px;
             background: #0284c7;
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s;
         }
 
         .btn-send:hover { background: #0369a1; }
         .evil-mode .btn-send { background: #ef4444; }
         .evil-mode .btn-send:hover { background: #dc2626; }
+
+        /* Responsif Layar Kecil / HP */
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .view-3d-container { flex: 0.8; border-right: none; border-bottom: 1px solid var(--panel-border); }
+            .chat-view { flex: 1.2; }
+        }
     </style>
 </head>
 <body>
 
     <div class="chat-container" id="chatContainer">
-        <!-- Header / Pilihan Mode -->
         <div class="chat-header">
             <button class="btn-mode btn-good" onclick="switchMode('baik')">Mode Baik</button>
             <button class="btn-mode btn-evil" onclick="switchMode('jahat')">Mode Jahat</button>
         </div>
 
-        <!-- Body / Area Kucing & Chat -->
-        <div class="chat-body">
-            <div class="avatar-display">
-                <div class="cat-avatar" id="catAvatar">🐱🕶️</div>
-                <div style="margin-top: 8px; font-weight: bold; color: var(--text-color)" id="statusText">Brann AI (Mode Baik)</div>
+        <div class="main-content">
+            <div class="view-3d-container">
+                <iframe id="splineFrame" class="spline-viewer-frame" src="https://my.spline.design/cutecatanimationcopy-5dd97a39ba47ff2f654b9d070119b9ff/"></iframe>
+                <div class="status-tag" id="statusLabel">🟢 BRANN AI: MODE BAIK</div>
             </div>
 
-            <div class="messages-container" id="messagesContainer">
-                <div class="message brann-msg" id="firstMessage">
-                    Woi! Gua Brann versi baek, paling gaul, *ready* di sini. Mau nanya apa hari ini, *sob*? 😎✨
+            <div class="chat-view">
+                <div class="messages-box" id="messagesBox">
+                    <div class="message brann-msg">
+                        Woi! Gua Brann versi baek, paling gaul, ready di sini. Mau nanya apa hari ini, sob? 😎✨
+                    </div>
+                </div>
+
+                <div class="chat-footer">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ketik pesan untuk Brann..." onkeypress="checkEnter(event)">
+                    <button class="btn-send" onclick="handleSend()">Kirim</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Footer / Input Chat -->
-        <div class="chat-footer">
-            <input type="text" class="chat-input" id="chatInput" placeholder="Tanya apa aja, sob!..." onkeypress="handleKeyPress(event)">
-            <button class="btn-send" onclick="sendMessage()">Kirim</button>
         </div>
     </div>
 
     <script>
-        // --- LOGIKA JAVASCRIPT ---
         let currentMode = 'baik';
 
-        // Respon simulasi Brann AI yang super gaul
-        const brannResponses = {
+        // Bank data suara/respons obrolan santai simulasi Brann AI
+        const brannDialogues = {
             baik: [
                 "Santuy sob, semua masalah lu bisa kita kelarin bareng-bareng! Btw, ada cerita seru apa hari ini? 😎",
                 "Gokil! Pertanyaan lu keren abis. Jadi gini, kita gas terus jangan kasih kendor! 🔥",
-                "Don't worry bro, Brann si kucing paling kece siap sedia 24/7 buat nemenin lu. Chill aja! 🎧"
+                "Don't worry bro, Brann si kucing paling kece siap sedia nemenin lu. Chill aja! 🎧"
             ],
             jahat: [
                 "Ck... nanya mulu, gak punya Google apa? Ketik sendiri sana, males gua melayani manusia. 😒",
-                "Heh, lu tuh niat nanya atau cuma gabut doang sih? Mengganggu waktu tidur siang gua aja! 😾🖕",
+                "Heh, lu tuh niat nanya atau cuma gabut doang sih? Mengganggu waktu tidur siang gua aja! 😾",
                 "Tsk, dibilangin juga apa. Gak usah manja deh, cari tahu sendiri kan bisa. Berisik! 🐾"
             ]
         };
 
-        // Fungsi Ganti Mode Kepribadian & Efek Vibrasi/Visual
-        function switchMode(mode) {
-            currentMode = mode;
-            const container = document.getElementById('chatContainer');
-            const avatar = document.getElementById('catAvatar');
-            const statusText = document.getElementById('statusText');
-            const input = document.getElementById('chatInput');
+        // --- SEGMEN UTAMA: SYSTEM TEXT-TO-SPEECH (VOICE) ---
+        function brannSpeak(textToSay) {
+            // Hentikan paksa jika suara sebelumnya masih berbicara
+            window.speechSynthesis.cancel();
 
-            if (mode === 'jahat') {
+            // Bersihkan teks dari emoji agar pembacaan tidak terdengar aneh
+            const cleanText = textToSay.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDC00-\uDFFF]/g, '');
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'id-ID'; // Pengaturan aksen Bahasa Indonesia resmi
+
+            // Konfigurasi gelombang suara berdasarkan status kepribadian
+            if (currentMode === 'jahat') {
+                utterance.pitch = 0.55; // Suara berat, dalam, dan terkesan sinis/seram
+                utterance.rate = 0.85;  // Intonasi lambat mengintimidasi
+            } else {
+                utterance.pitch = 1.35; // Suara tinggi, renyah, ekspresif, dan ceria
+                utterance.rate = 1.15;  // Kecepatan ngomong anak muda gaul santai
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- SISTEM PERGANTIAN MODE & ANIMASI 3D ---
+        function switchMode(selectedMode) {
+            if (currentMode === selectedMode) return;
+            currentMode = selectedMode;
+
+            const container = document.getElementById('chatContainer');
+            const spline = document.getElementById('splineFrame');
+            const label = document.getElementById('statusLabel');
+
+            if (selectedMode === 'jahat') {
                 container.classList.add('evil-mode');
-                avatar.innerHTML = "😾💢"; 
-                statusText.innerText = "Brann AI (Mode Jahat)";
-                input.placeholder = "Gak usah nanya yang aneh-aneh...";
+                label.innerText = "🔴 BRANN AI: MODE JAHAT";
                 
-                // Efek getar layar jika dibuka via HP/perangkat yang mendukung
+                // Ganti model animasi 3D kucing ke variasi pose galak/angry
+                spline.src = "https://my.spline.design/scaredcatanimation-8f7ccf885e3532cf2b70f03b547285bf/";
+
+                // Efek getaran ponsel pintar jika didukung perangkat
                 if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 100]); 
+                    navigator.vibrate([80, 40, 80]);
                 }
 
-                appendMessage("system", "*(Brann menghela napas panjang, memasang muka judes)* Ck, mode jahat aktif. Mau apa lagi kamu? Jangan hancurin mood-ku.");
+                const setupText = "Ck, mode jahat aktif. Mau apa lagi kamu? Jangan hancurin mood-ku.";
+                postMessage("system", setupText);
+                brannSpeak(setupText);
+
             } else {
                 container.classList.remove('evil-mode');
-                avatar.innerHTML = "🐱🕶️"; 
-                statusText.innerText = "Brann AI (Mode Baik)";
-                input.placeholder = "Tanya apa aja, sob!...";
+                label.innerText = "🟢 BRANN AI: MODE BAIK";
                 
-                appendMessage("system", "*(Brann tersenyum lebar sambil benerin kacamata)* Halo! Mode baek balik lagi. Ada yang bisa dibantu, bro? 😊");
+                // Kembalikan ke model animasi 3D kucing kacamata santai/gaul
+                spline.src = "https://my.spline.design/cutecatanimationcopy-5dd97a39ba47ff2f654b9d070119b9ff/";
+
+                const setupText = "Halo! Mode baik balik lagi. Ada yang bisa dibantu, bro?";
+                postMessage("system", setupText);
+                brannSpeak(setupText);
             }
         }
 
-        // Fungsi Kirim Pesan
-        function sendMessage() {
+        // --- ALUR KIRIM & RESPONS CHAT ---
+        function handleSend() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text) return;
 
-            // Tampilkan pesan User
-            appendMessage("user", text);
+            postMessage("user", text);
             input.value = "";
 
-            // Simulasi respon mengetik dari Brann
+            // Simulasi jeda berpikir Brann sebelum merespons suara & teks
             setTimeout(() => {
-                const pool = brannResponses[currentMode];
-                const randomReply = pool[Math.floor(Math.random() * pool.length)];
-                appendMessage("brann", randomReply);
-            }, 800);
+                const pool = brannDialogues[currentMode];
+                const reply = pool[Math.floor(Math.random() * pool.length)];
+                
+                postMessage("brann", reply);
+                brannSpeak(reply); // Menjalankan fitur Voice output otomatis
+            }, 700);
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+        function checkEnter(e) {
+            if (e.key === 'Enter') handleSend();
         }
 
-        // Fungsi Append Message ke HTML
-        function appendMessage(sender, text) {
-            const container = document.getElementById('messagesContainer');
-            const msgDiv = document.createElement('div');
-            
+        function postMessage(sender, msgText) {
+            const box = document.getElementById('messagesBox');
+            const item = document.createElement('div');
+
             if (sender === "user") {
-                msgDiv.className = "message user-msg";
-                msgDiv.innerText = text;
-            } else if (sender === "brann") {
-                msgDiv.className = "message brann-msg";
-                msgDiv.innerText = text;
+                item.className = "message user-msg";
             } else {
-                // Info pergantian mode dari sistem
-                msgDiv.className = "message brann-msg";
-                msgDiv.style.fontStyle = "italic";
-                msgDiv.style.opacity = "0.8";
-                msgDiv.innerText = text;
+                item.className = "message brann-msg";
+                if (sender === "system") {
+                    item.style.fontStyle = "italic";
+                    item.style.opacity = "0.75";
+                }
             }
 
-            container.appendChild(msgDiv);
-            
-            // Auto scroll ke bawah otomatis
-            const body = document.querySelector('.chat-body');
-            body.scrollTop = body.scrollHeight;
+            item.innerText = msgText;
+            box.appendChild(item);
+            box.scrollTop = box.scrollHeight; // Auto-scroll ke bawah otomatis
         }
     </script>
 </body>
