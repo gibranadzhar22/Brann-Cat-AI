@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brann AI - Kucing Gaul</title>
+    <style>
+        /* --- CSS STYLING & EXPERIMENT --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            --panel-bg: rgba(255, 255, 255, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.6);
+            --text-color: #1e293b;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* Mode Jahat: Tema Gelap Cyberpunk / Neon Red */
+        .evil-mode {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            --panel-bg: rgba(15, 23, 42, 0.6);
+            --panel-border: rgba(239, 68, 68, 0.4);
+            --text-color: #f8fafc;
+            --shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.5s ease;
+            padding: 20px;
+        }
+
+        /* Glassmorphism Container */
+        .chat-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 800px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        /* Header & Toggle Buttons */
+        .chat-header {
+            padding: 20px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--panel-border);
+            z-index: 10;
+        }
+
+        .btn-mode {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-good {
+            background-color: #22c55e;
+            color: white;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+
+        .btn-evil {
+            background-color: #ef4444;
+            color: white;
+            opacity: 0.6;
+        }
+
+        .evil-mode .btn-good { opacity: 0.6; box-shadow: none; }
+        .evil-mode .btn-evil { opacity: 1; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+
+        /* Area Utama Chat & Avatar Kucing */
+        .chat-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .avatar-display {
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 180px;
+        }
+
+        .cat-avatar {
+            font-size: 80px;
+            display: inline-block;
+            transition: transform 0.3s ease;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        /* Bubble Chat */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brann-msg {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .evil-mode .brann-msg {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .user-msg {
+            background: #0284c7;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Input Area */
+        .chat-footer {
+            padding: 20px;
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255, 255, 255, 0.8);
+            color: #1e293b;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .evil-mode .chat-input {
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-send {
+            padding: 0 24px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-send:hover { background: #0369a1; }
+        .evil-mode .btn-send { background: #ef4444; }
+        .evil-mode .btn-send:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container" id="chatContainer">
+        <!-- Header / Pilihan Mode -->
+        <div class="chat-header">
+            <button class="btn-mode btn-good" onclick="switchMode('baik')">Mode Baik</button>
+            <button class="btn-mode btn-evil" onclick="switchMode('jahat')">Mode Jahat</button>
+        </div>
+
+        <!-- Body / Area Kucing & Chat -->
+        <div class="chat-body">
+            <div class="avatar-display">
+                <div class="cat-avatar" id="catAvatar">🐱🕶️</div>
+                <div style="margin-top: 8px; font-weight: bold; color: var(--text-color)" id="statusText">Brann AI (Mode Baik)</div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="message brann-msg" id="firstMessage">
+                    Woi! Gua Brann versi baek, paling gaul, *ready* di sini. Mau nanya apa hari ini, *sob*? 😎✨
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Input Chat -->
+        <div class="chat-footer">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Tanya apa aja, sob!..." onkeypress="handleKeyPress(event)">
+            <button class="btn-send" onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIKA JAVASCRIPT ---
+        let currentMode = 'baik';
+
+        // Respon simulasi Brann AI yang super gaul
+        const brannResponses = {
+            baik: [
+                "Santuy sob, semua masalah lu bisa kita kelarin bareng-bareng! Btw, ada cerita seru apa hari ini? 😎",
+                "Gokil! Pertanyaan lu keren abis. Jadi gini, kita gas terus jangan kasih kendor! 🔥",
+                "Don't worry bro, Brann si kucing paling kece siap sedia 24/7 buat nemenin lu. Chill aja! 🎧"
+            ],
+            jahat: [
+                "Ck... nanya mulu, gak punya Google apa? Ketik sendiri sana, males gua melayani manusia. 😒",
+                "Heh, lu tuh niat nanya atau cuma gabut doang sih? Mengganggu waktu tidur siang gua aja! 😾🖕",
+                "Tsk, dibilangin juga apa. Gak usah manja deh, cari tahu sendiri kan bisa. Berisik! 🐾"
+            ]
+        };
+
+        // Fungsi Ganti Mode Kepribadian & Efek Vibrasi/Visual
+        function switchMode(mode) {
+            currentMode = mode;
+            const container = document.getElementById('chatContainer');
+            const avatar = document.getElementById('catAvatar');
+            const statusText = document.getElementById('statusText');
+            const input = document.getElementById('chatInput');
+
+            if (mode === 'jahat') {
+                container.classList.add('evil-mode');
+                avatar.innerHTML = "😾💢"; 
+                statusText.innerText = "Brann AI (Mode Jahat)";
+                input.placeholder = "Gak usah nanya yang aneh-aneh...";
+                
+                // Efek getar layar jika dibuka via HP/perangkat yang mendukung
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]); 
+                }
+
+                appendMessage("system", "*(Brann menghela napas panjang, memasang muka judes)* Ck, mode jahat aktif. Mau apa lagi kamu? Jangan hancurin mood-ku.");
+            } else {
+                container.classList.remove('evil-mode');
+                avatar.innerHTML = "🐱🕶️"; 
+                statusText.innerText = "Brann AI (Mode Baik)";
+                input.placeholder = "Tanya apa aja, sob!...";
+                
+                appendMessage("system", "*(Brann tersenyum lebar sambil benerin kacamata)* Halo! Mode baek balik lagi. Ada yang bisa dibantu, bro? 😊");
+            }
+        }
+
+        // Fungsi Kirim Pesan
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Tampilkan pesan User
+            appendMessage("user", text);
+            input.value = "";
+
+            // Simulasi respon mengetik dari Brann
+            setTimeout(() => {
+                const pool = brannResponses[currentMode];
+                const randomReply = pool[Math.floor(Math.random() * pool.length)];
+                appendMessage("brann", randomReply);
+            }, 800);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Fungsi Append Message ke HTML
+        function appendMessage(sender, text) {
+            const container = document.getElementById('messagesContainer');
+            const msgDiv = document.createElement('div');
+            
+            if (sender === "user") {
+                msgDiv.className = "message user-msg";
+                msgDiv.innerText = text;
+            } else if (sender === "brann") {
+                msgDiv.className = "message brann-msg";
+                msgDiv.innerText = text;
+            } else {
+                // Info pergantian mode dari sistem
+                msgDiv.className = "message brann-msg";
+                msgDiv.style.fontStyle = "italic";
+                msgDiv.style.opacity = "0.8";
+                msgDiv.innerText = text;
+            }
+
+            container.appendChild(msgDiv);
+            
+            // Auto scroll ke bawah otomatis
+            const body = document.querySelector('.chat-body');
+            body.scrollTop = body.scrollHeight;
+        }
+    </script>
+</body>
+</html>
